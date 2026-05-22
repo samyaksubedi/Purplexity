@@ -16,7 +16,7 @@ const transporter = createTransport({
 const verifyMailTransporter = () => {
   transporter.verify((error) => {
     if (error) console.error('Mail config error:', error.message);
-    else console.log('Mail transporter ready ✓');
+    else console.log('Mail transporter ready ✅');
   });
 };
 

@@ -1,4 +1,4 @@
-import { prisma } from '../Configs/postgress.config.js';
+import { prisma } from '../Configs/postgres.config.js';
 
 const getUsersConversationContext = async (
   conversationId,

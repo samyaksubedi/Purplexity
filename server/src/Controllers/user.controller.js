@@ -1,4 +1,4 @@
-import { prisma } from '../Configs/postgress.config.js';
+import { prisma } from '../Configs/postgres.config.js';
 import { ApiError } from '../UTILS/API/error.api.js';
 import { ApiResponse } from '../UTILS/API/response.api.js';
 

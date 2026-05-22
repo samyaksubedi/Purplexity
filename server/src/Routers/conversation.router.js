@@ -15,7 +15,6 @@ import { authenticateUser } from '../Middlewares/auth.middleware.js';
 const router = express.Router();
 
 router.post('/ask', authenticateUser, validate(askReqBodySchema), ask);
-// router.post('/followup', authenticateUser, ask_followup);
 router.get('/', authenticateUser, getConversations);
 router.get(
   '/:conversationId',
