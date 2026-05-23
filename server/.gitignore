@@ -3,4 +3,6 @@ node_modules
 .env
 
 /src/generated/prisma
-/auth_info
+
+
+logs/

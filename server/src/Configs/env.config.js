@@ -14,6 +14,7 @@ const envVariables = {
   ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET,
   REDIS_URL: process.env.REDIS_URL,
   QDRANT_URL: process.env.QDRANT_URL,
+  NODE_ENV: process.env.NODE_ENV,
 };
 
 export { envVariables, loadEnv };

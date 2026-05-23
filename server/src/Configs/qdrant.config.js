@@ -1,13 +1,18 @@
 import { QdrantClient } from '@qdrant/js-client-rest';
 import { envVariables } from './env.config.js';
+import { logger } from './logger.config.js';
 
 const qdrantClient = new QdrantClient({ url: envVariables.QDRANT_URL });
+
 const connectQdrant = async () => {
   try {
     await qdrantClient.getCollections();
-    console.log('Qdrant connected ✅');
+    logger.info('Qdrant connected');
   } catch (error) {
-    console.error('Qdrant connection failed ❌', error.message);
+    logger.error('Qdrant connection failed', {
+      error: error.message,
+      stack: error.stack,
+    });
     process.exit(1);
   }
 };

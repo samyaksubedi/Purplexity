@@ -1,5 +1,6 @@
 import { envVariables } from '../Configs/env.config.js';
 import { ApiError } from '../UTILS/API/error.api.js';
+import { logger } from '../Configs/logger.config.js';
 import jwt from 'jsonwebtoken';
 
 const authenticateUser = async (req, res, next) => {
@@ -8,6 +9,9 @@ const authenticateUser = async (req, res, next) => {
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      logger.warn('Request with missing or malformed authorization header', {
+        path: req.path,
+      });
       return res.status(401).json(new ApiError(401, 'No token provided'));
     }
 
@@ -26,7 +30,10 @@ const authenticateUser = async (req, res, next) => {
     // 5. Continue
     next();
   } catch (error) {
-    // console.error(error.message);
+    logger.warn('Invalid or expired token used', {
+      error: error.message,
+      path: req.path,
+    });
     return res.status(401).json(new ApiError(401, 'Invalid or expired token'));
   }
 };

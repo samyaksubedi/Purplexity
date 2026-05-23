@@ -1,5 +1,6 @@
 import { redis } from '../Configs/redis.config.js';
 import { ApiError } from '../UTILS/API/error.api.js';
+import { logger } from '../Configs/logger.config.js';
 
 const GLOBAL_LIMIT = 100; // max requests per day across all users
 const USER_LIMIT = 20; // max requests per day per user
@@ -19,6 +20,7 @@ const creditLimiter = async (req, res, next) => {
     }
 
     if (globalCount > GLOBAL_LIMIT) {
+      logger.warn('Global rate limit exceeded', { globalCount, userId });
       return res
         .status(429)
         .json(new ApiError(429, 'Server is busy, please try again tomorrow'));
@@ -34,6 +36,7 @@ const creditLimiter = async (req, res, next) => {
     }
 
     if (userCount > USER_LIMIT) {
+      logger.warn('User daily limit exceeded', { userId, userCount });
       return res
         .status(429)
         .json(
@@ -44,17 +47,20 @@ const creditLimiter = async (req, res, next) => {
         );
     }
 
-    next(); //it passed both checks
+    logger.debug('Rate limit check passed', { userId, userCount, globalCount });
+    next(); // passed both checks
   } catch (error) {
-    console.error('Rate limiter error:', error.message);
-    // next(); // if Redis fails, don't block the user but log the error and return a 500 response
-    process.exit(1); //Exit the process if Redis is not working, since caching and rate limiting are critical for our app's performance and stability.
+    logger.error('Rate limiter error', {
+      error: error.message,
+      stack: error.stack,
+    });
+    process.exit(1); // Exit the process if Redis is not working, since caching and rate limiting are critical for our app's performance and stability.
     return res
-      .status(429)
+      .status(500)
       .json(
         new ApiError(
           500,
-          `Internal error in rate limiter, please try again later`,
+          'Internal error in rate limiter, please try again later',
         ),
       );
   }

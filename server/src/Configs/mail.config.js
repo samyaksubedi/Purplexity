@@ -1,6 +1,6 @@
-// mail.config.js
 import { createTransport } from 'nodemailer';
 import { envVariables } from './env.config.js';
+import { logger } from './logger.config.js';
 
 const transporter = createTransport({
   service: 'gmail',
@@ -10,13 +10,16 @@ const transporter = createTransport({
   },
 });
 
-// console.log('GMAIL_USER:', envVariables.GMAIL_USER);
-// console.log('GMAIL_APP_PASS:', envVariables.GMAIL_APP_PASSWORD);
-
 const verifyMailTransporter = () => {
   transporter.verify((error) => {
-    if (error) console.error('Mail config error:', error.message);
-    else console.log('Mail transporter ready ✅');
+    if (error) {
+      logger.error('Mail transporter connection failed', {
+        error: error.message,
+        stack: error.stack,
+      });
+    } else {
+      logger.info('Mail transporter ready');
+    }
   });
 };
 

@@ -1,4 +1,5 @@
 import { transporter } from '../../Configs/mail.config.js';
+import { logger } from '../../Configs/logger.config.js';
 
 const sendEmail = async ({ to, subject, html, text }) => {
   try {
@@ -11,10 +12,19 @@ const sendEmail = async ({ to, subject, html, text }) => {
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log('Email sent:', info.messageId);
+    logger.info('Email sent successfully', {
+      to,
+      subject,
+      messageId: info.messageId,
+    });
     return info;
   } catch (error) {
-    console.error('Failed to send email:', error.message);
+    logger.error('Failed to send email', {
+      error: error.message,
+      stack: error.stack,
+      to,
+      subject,
+    });
     throw error; // let the caller handle it
   }
 };

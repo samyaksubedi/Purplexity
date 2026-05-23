@@ -4,8 +4,6 @@ import { parallelSearchWeb } from '../Services/websearch.service.js';
 import { ApiError } from '../UTILS/API/error.api.js';
 import { ApiResponse } from '../UTILS/API/response.api.js';
 import { JsonOutputParser } from '@langchain/core/output_parsers';
-// import { redis } from '../Configs/redis.config.js';
-// import { generateCacheKey } from '../Services/redis.service.js';
 import { getUsersConversationContext } from '../Services/llm_context.service.js';
 import { prisma } from '../Configs/postgres.config.js';
 import { MessageRole } from '@prisma/client';
@@ -14,6 +12,7 @@ import {
   generateSubQueries,
 } from '../Services/query.service.js';
 import { getFromCache, saveToCache } from '../Services/cache.service.js';
+import { logger } from '../Configs/logger.config.js';
 
 const parser = new JsonOutputParser();
 
@@ -54,21 +53,19 @@ const ask = async (req, res) => {
     });
 
     const classifyQueryResponse = await classifyQuery(query);
-    console.log('Query classified as:', classifyQueryResponse);
+    logger.debug('Query classified', { query, type: classifyQueryResponse });
 
     if (classifyQueryResponse === 'global-cacheable') {
       // ─── 4. CHECK Semantic CACHE ─────────────────────────────────────────────────
-
       // Cache hit → skip the entire pipeline and return instantly
-
       const cachedResponse = await getFromCache(query);
 
       if (cachedResponse) {
-        console.log('Cache hit ✅ returning cached response');
+        logger.info('Cache hit', { query, conversationId: conversation.id });
 
         // Parse cached data and persist assistant message to DB
         // Even on cache hit, we save to DB for conversation history continuity
-        const data = cachedResponse; // { llmResponse, sources } alr parsed by getFromCache
+        const data = cachedResponse;
         const content = JSON.stringify(data.llmResponse);
         const sources = data.sources;
 
@@ -99,7 +96,9 @@ const ask = async (req, res) => {
           );
       }
     }
-    console.log('Cache miss ❌ running full pipeline');
+
+    logger.info('Cache miss — running full pipeline', { query });
+
     // ─── 5. FETCH CONVERSATION CONTEXT ───────────────────────────────────────
     // Retrieve last 7 messages from this conversation for follow-up awareness
     // Passed to LLM so it understands what was discussed before
@@ -112,9 +111,8 @@ const ask = async (req, res) => {
     // ─── 6. GENERATE SUB-QUERIES ──────────────────────────────────────────────
     // Break the user query into 3 specific sub-queries
     // Broader coverage = richer context for the final answer
-
     const subQueries = await generateSubQueries(query);
-    console.log('Sub-queries for web search:', subQueries);
+    logger.debug('Sub-queries generated', { subQueries });
 
     // ─── 7. PARALLEL WEB SEARCH ───────────────────────────────────────────────
     // Fire all 3 Tavily searches simultaneously using Promise.all()
@@ -166,14 +164,19 @@ const ask = async (req, res) => {
     // Only cache if query is classified as "global-cacheable"
     if (classifyQueryResponse === 'global-cacheable') {
       // ─── 11. CACHE THE RESPONSE ───────────────────────────────────────────────
-      // Store in Qdrant for 30Days   (Logic is in cache.service.js)
+      // Store in Qdrant for 30Days (Logic is in cache.service.js)
       const responseToCache = { llmResponse, sources: sourcesArray };
-      await saveToCache(query, responseToCache); // Save to vector DB cache for semantic retrieval
-      console.log('Response cached ✅');
+      await saveToCache(query, responseToCache);
+      logger.info('Response cached in Qdrant', { query });
     }
+
     // ─── 12. RETURN RESPONSE ──────────────────────────────────────────────────
     // Always return conversationId so client can send follow-ups
     // against the same conversation
+    logger.info('AI responded successfully', {
+      conversationId: conversation.id,
+      userId,
+    });
     return res.status(200).json(
       new ApiResponse(
         200,
@@ -186,12 +189,16 @@ const ask = async (req, res) => {
       ),
     );
   } catch (error) {
-    console.error('Internal Server Error at /ask ', error.message);
+    logger.error('Internal Server Error at /ask', {
+      error: error.message,
+      stack: error.stack,
+    });
     return res
       .status(500)
       .json(new ApiError(500, 'Internal Server Error at /ask'));
   }
 };
+
 // GET /conversations — sidebar list (lightweight, no messages)
 const getConversations = async (req, res) => {
   try {
@@ -220,7 +227,10 @@ const getConversations = async (req, res) => {
         ),
       );
   } catch (error) {
-    console.error('Internal Server Error at /conversations ', error.message);
+    logger.error('Internal Server Error at /conversations', {
+      error: error.message,
+      stack: error.stack,
+    });
     return res
       .status(500)
       .json(new ApiError(500, 'Internal Server Error at /conversations'));
@@ -249,6 +259,10 @@ const getConversation = async (req, res) => {
 
     // Prevent user from accessing another user's conversation
     if (conversation.userId !== userId) {
+      logger.warn('Unauthorized conversation access attempt', {
+        userId,
+        conversationId,
+      });
       return res.status(403).json(new ApiError(403, 'Unauthorized'));
     }
 
@@ -258,7 +272,10 @@ const getConversation = async (req, res) => {
         new ApiResponse(200, conversation, 'Conversation fetched successfully'),
       );
   } catch (error) {
-    console.error('Internal Server Error at /conversation/:id ', error.message);
+    logger.error('Internal Server Error at /conversation/:id', {
+      error: error.message,
+      stack: error.stack,
+    });
     return res
       .status(500)
       .json(new ApiError(500, 'Internal Server Error at /conversation/:id'));
@@ -282,6 +299,10 @@ const deleteConversation = async (req, res) => {
 
     // Prevent user from deleting another user's conversation
     if (conversation.userId !== userId) {
+      logger.warn('Unauthorized conversation delete attempt', {
+        userId,
+        conversationId,
+      });
       return res.status(403).json(new ApiError(403, 'Unauthorized'));
     }
 
@@ -290,14 +311,15 @@ const deleteConversation = async (req, res) => {
       where: { id: conversationId },
     });
 
+    logger.info('Conversation deleted', { conversationId, userId });
     return res
       .status(200)
       .json(new ApiResponse(200, null, 'Conversation deleted successfully'));
   } catch (error) {
-    console.error(
-      'Internal Server Error at DELETE /conversation/:id ',
-      error.message,
-    );
+    logger.error('Internal Server Error at DELETE /conversation/:id', {
+      error: error.message,
+      stack: error.stack,
+    });
     return res
       .status(500)
       .json(

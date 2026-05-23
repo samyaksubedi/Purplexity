@@ -4,7 +4,7 @@ import { verifyMailTransporter } from './Configs/mail.config.js';
 import { connectPostgres } from './Configs/postgres.config.js';
 import { connectQdrant } from './Configs/qdrant.config.js';
 import { connectRedis } from './Configs/redis.config.js';
-// import { connectWhatsApp } from './Configs/whatsapp.config.js';
+import { logger } from './Configs/logger.config.js';
 
 const PORT = envVariables.PORT || 3000;
 
@@ -13,11 +13,10 @@ async function startServer() {
   await connectPostgres();
   await connectQdrant();
   await connectRedis();
-  // await connectWhatsApp();
   verifyMailTransporter();
   app.listen(PORT, () => {
-    console.log(` Server running on port ${PORT}`);
-    console.log(` API endpoints available at http://localhost:${PORT}/api`);
+    logger.info(`Server running on port ${PORT}`);
+    logger.info(`API endpoints available at http://localhost:${PORT}/api`);
   });
 }
 
