@@ -23,9 +23,9 @@ router.post(
   validate(askReqBodySchema),
   ask,
 );
-router.get('/', authenticateUser, getConversations);
+router.get('/conversations', authenticateUser, getConversations);
 router.get(
-  '/:conversationId',
+  '/conversation/:conversationId',
   authenticateUser,
   validate(getConversationReqParamsSchema, 'params'),
   getConversation,
@@ -36,5 +36,4 @@ router.delete(
   validate(deleteConversationReqParamsSchema, 'params'),
   deleteConversation,
 );
-
 export default router;

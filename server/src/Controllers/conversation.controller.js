@@ -215,7 +215,9 @@ const getConversations = async (req, res) => {
       },
     });
     if (conversations.length == 0) {
-      return res.status(404).json(new ApiError(404, 'No conversations found'));
+      return res
+        .status(200)
+        .json(new ApiResponse(200, [], 'No conversations found'));
     }
     return res
       .status(200)

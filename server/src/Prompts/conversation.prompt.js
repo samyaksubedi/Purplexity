@@ -20,7 +20,10 @@ The response MUST follow this exact structure:
 Rules:
 - All keys must be double-quoted
 - "answer" must be a single string
-- "followUps" must be an array of 3 question strings
+- "followUps" must be an array of exactly 3 strings
+- followUps must be related questions the USER might want to explore next based on the current topic
+- followUps must NOT be questions directed at the user — they are suggested next searches
+- followUps should naturally extend or deepen the current topic
 - Output nothing outside the JSON object
 `;
 

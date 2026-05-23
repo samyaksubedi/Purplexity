@@ -25,7 +25,7 @@ router.post(
   validate(resendVerificationTokenReqBodySchema),
   resendVerificationToken,
 );
-router.post('/verify/:token', verifyUser);
+router.get('/verify/:token', verifyUser);
 router.post('/signIn', validate(signInReqBodySchema), signIn);
 router.post('/logout', logoutUser);
 router.post('/refresh', refresh);
