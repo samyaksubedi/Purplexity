@@ -21,7 +21,7 @@ const ask = async (req, res) => {
   try {
     const { query, conversationId } = req.body;
     const userId = req.user.id;
-    // const runWholePipeline= undefined
+    
     if (!query) {
       return res.status(400).json(new ApiError(400, 'query is required'));
     }
