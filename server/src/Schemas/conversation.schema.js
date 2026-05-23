@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { id } from 'zod/v4/locales';
 
 const askReqBodySchema = z.object({
   query: z.string(),
