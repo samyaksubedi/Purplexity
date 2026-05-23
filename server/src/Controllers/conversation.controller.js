@@ -21,7 +21,7 @@ const ask = async (req, res) => {
   try {
     const { query, conversationId } = req.body;
     const userId = req.user.id;
-    
+
     if (!query) {
       return res.status(400).json(new ApiError(400, 'query is required'));
     }
@@ -264,4 +264,46 @@ const getConversation = async (req, res) => {
       .json(new ApiError(500, 'Internal Server Error at /conversation/:id'));
   }
 };
-export { ask, getConversations, getConversation };
+
+// DELETE /conversation/:id — delete conversation + all its messages (cascade)
+const deleteConversation = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { conversationId } = req.params;
+
+    // Validate conversation exists
+    const conversation = await prisma.conversation.findUnique({
+      where: { id: conversationId },
+    });
+
+    if (!conversation) {
+      return res.status(404).json(new ApiError(404, 'Conversation not found'));
+    }
+
+    // Prevent user from deleting another user's conversation
+    if (conversation.userId !== userId) {
+      return res.status(403).json(new ApiError(403, 'Unauthorized'));
+    }
+
+    // Delete conversation — cascade deletes all messages automatically
+    await prisma.conversation.delete({
+      where: { id: conversationId },
+    });
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, null, 'Conversation deleted successfully'));
+  } catch (error) {
+    console.error(
+      'Internal Server Error at DELETE /conversation/:id ',
+      error.message,
+    );
+    return res
+      .status(500)
+      .json(
+        new ApiError(500, 'Internal Server Error at DELETE /conversation/:id'),
+      );
+  }
+};
+
+export { ask, getConversations, getConversation, deleteConversation };

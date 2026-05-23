@@ -7,5 +7,12 @@ const askReqBodySchema = z.object({
 const getConversationReqParamsSchema = z.object({
   conversationId: z.string().uuid(),
 });
+const deleteConversationReqParamsSchema = z.object({
+  conversationId: z.string().uuid(),
+});
 
-export { askReqBodySchema, getConversationReqParamsSchema };
+export {
+  askReqBodySchema,
+  getConversationReqParamsSchema,
+  deleteConversationReqParamsSchema,
+};
