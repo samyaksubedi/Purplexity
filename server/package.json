@@ -8,7 +8,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "nodemon src/server.js"
+    "dev": "nodemon src/server.js",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@langchain/core": "^1.1.48",
