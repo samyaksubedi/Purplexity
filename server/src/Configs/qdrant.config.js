@@ -2,7 +2,7 @@ import { QdrantClient } from '@qdrant/js-client-rest';
 import { envVariables } from './env.config.js';
 import { logger } from './logger.config.js';
 
-const qdrantClient = new QdrantClient({ url: envVariables.QDRANT_URL });
+const qdrantClient = new QdrantClient({ url: envVariables.QDRANT_URL,apiKey: envVariables.QDRANT_API_KEY });
 
 const connectQdrant = async () => {
   try {

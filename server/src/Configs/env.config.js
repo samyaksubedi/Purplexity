@@ -15,6 +15,7 @@ const envVariables = {
   ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET,
   REDIS_URL: process.env.REDIS_URL,
   QDRANT_URL: process.env.QDRANT_URL,
+  QDRANT_API_KEY: process.env.QDRANT_API_KEY,
   NODE_ENV: process.env.NODE_ENV,
 };
 

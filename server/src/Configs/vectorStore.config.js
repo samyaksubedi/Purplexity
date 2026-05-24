@@ -8,6 +8,7 @@ const embeddings = new OpenAIEmbeddings({
 
 const vectorStore = await QdrantVectorStore.fromExistingCollection(embeddings, {
   url: envVariables.QDRANT_URL,
+  apiKey: envVariables.QDRANT_API_KEY,
   collectionName: 'query_caching',
 });
 
