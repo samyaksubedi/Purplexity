@@ -9,14 +9,13 @@ const Sidebar = ({
   onDeleteConversation,
   onNewChat,
   onMount,
+  isOpen,
+  onClose,
 }) => {
-  // ✅ select separately to avoid infinite loop
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
-
   const [hoveredId, setHoveredId] = useState(null);
 
-  // Fetch conversations on mount
   useEffect(() => {
     onMount();
   }, []);
@@ -33,11 +32,40 @@ const Sidebar = ({
   };
 
   return (
-    <div className='w-64 h-screen bg-[#eeede8] flex flex-col border-r border-gray-200'>
+    <div
+      className={`
+        fixed md:static inset-y-0 left-0 z-30
+        w-64 h-screen bg-[#eeede8] flex flex-col border-r border-gray-200
+        transform transition-transform duration-300 ease-in-out
+        ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+        md:translate-x-0
+      `}
+    >
       {/* Logo */}
-      <div className='px-4 py-5 border-b border-gray-200'>
-        <h1 className='text-xl font-bold text-[#6c3fc5]'>Purplexity</h1>
-        <p className='text-xs text-gray-400 mt-0.5'>AI Search Engine</p>
+      <div className='px-4 py-5 border-b border-gray-200 flex items-center justify-between'>
+        <div>
+          <h1 className='text-xl font-bold text-[#6c3fc5]'>Purplexity</h1>
+          <p className='text-xs text-gray-400 mt-0.5'>AI Search Engine</p>
+        </div>
+        {/* ✅ Close button on mobile */}
+        <button
+          onClick={onClose}
+          className='md:hidden text-gray-400 hover:text-gray-600 transition-colors'
+        >
+          <svg
+            className='w-5 h-5'
+            fill='none'
+            viewBox='0 0 24 24'
+            stroke='currentColor'
+          >
+            <path
+              strokeLinecap='round'
+              strokeLinejoin='round'
+              strokeWidth={2}
+              d='M6 18L18 6M6 6l12 12'
+            />
+          </svg>
+        </button>
       </div>
 
       {/* New Chat Button */}
@@ -82,33 +110,33 @@ const Sidebar = ({
                   : 'hover:bg-gray-200 text-gray-600'
               }`}
             >
-              {/* Title */}
               <span className='text-sm truncate flex-1'>{conv.title}</span>
 
-              {/* Delete button — shows on hover */}
-              {hoveredId === conv.id && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDeleteConversation(conv.id);
-                  }}
-                  className='ml-2 text-gray-400 hover:text-red-500 transition-colors'
+              {/* ✅ Always show delete on mobile, hover on desktop */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDeleteConversation(conv.id);
+                }}
+                className={`ml-2 text-gray-400 hover:text-red-500 transition-colors
+                  md:opacity-0 md:group-hover:opacity-100 opacity-100
+                  ${activeConversationId === conv.id ? 'md:opacity-100' : ''}
+                `}
+              >
+                <svg
+                  className='w-3.5 h-3.5'
+                  fill='none'
+                  viewBox='0 0 24 24'
+                  stroke='currentColor'
                 >
-                  <svg
-                    className='w-3.5 h-3.5'
-                    fill='none'
-                    viewBox='0 0 24 24'
-                    stroke='currentColor'
-                  >
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={2}
-                      d='M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16'
-                    />
-                  </svg>
-                </button>
-              )}
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth={2}
+                    d='M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16'
+                  />
+                </svg>
+              </button>
             </div>
           ))
         )}
@@ -117,13 +145,15 @@ const Sidebar = ({
       {/* User Info + Logout */}
       <div className='px-4 py-4 border-t border-gray-200'>
         <div className='flex items-center justify-between'>
-          <div>
-            <p className='text-sm font-medium text-gray-800'>{user?.name}</p>
+          <div className='min-w-0 flex-1'>
+            <p className='text-sm font-medium text-gray-800 truncate'>
+              {user?.name}
+            </p>
             <p className='text-xs text-gray-400 truncate'>{user?.email}</p>
           </div>
           <button
             onClick={handleLogout}
-            className='text-gray-400 hover:text-red-500 transition-colors'
+            className='ml-2 shrink-0 text-gray-400 hover:text-red-500 transition-colors'
             title='Logout'
           >
             <svg

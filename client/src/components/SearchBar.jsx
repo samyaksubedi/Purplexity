@@ -7,11 +7,10 @@ const SearchBar = ({ onAsk, loading }) => {
     e.preventDefault();
     if (!query.trim() || loading) return;
     onAsk(query);
-    setQuery(''); // clear input after sending
+    setQuery('');
   };
 
   const handleKeyDown = (e) => {
-    // Submit on Enter, new line on Shift+Enter
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSubmit(e);
@@ -19,12 +18,11 @@ const SearchBar = ({ onAsk, loading }) => {
   };
 
   return (
-    <div className='px-4 py-4 border-t border-gray-200 bg-[#f5f4ef]'>
+    <div className='px-3 md:px-4 py-4 border-t border-gray-200 bg-[#f5f4ef]'>
       <form
         onSubmit={handleSubmit}
         className='max-w-3xl mx-auto flex items-end gap-3 bg-white border border-gray-200 rounded-2xl px-4 py-3 shadow-sm focus-within:border-[#6c3fc5] focus-within:ring-1 focus-within:ring-[#6c3fc5] transition-all'
       >
-        {/* Textarea */}
         <textarea
           value={query}
           onChange={(e) => setQuery(e.target.value)}
@@ -32,16 +30,14 @@ const SearchBar = ({ onAsk, loading }) => {
           placeholder='Ask anything...'
           rows={1}
           disabled={loading}
-          className='flex-1 resize-none text-sm text-gray-800 placeholder-gray-400 focus:outline-none bg-transparent disabled:opacity-50'
+          className='flex-1 resize-none text-sm text-gray-800 placeholder-gray-400 focus:outline-none bg-transparent disabled:opacity-50 min-w-0'
           style={{ maxHeight: '120px', overflowY: 'auto' }}
           onInput={(e) => {
-            // Auto grow textarea
             e.target.style.height = 'auto';
             e.target.style.height = e.target.scrollHeight + 'px';
           }}
         />
 
-        {/* Submit Button */}
         <button
           type='submit'
           disabled={!query.trim() || loading}
@@ -67,7 +63,7 @@ const SearchBar = ({ onAsk, loading }) => {
         </button>
       </form>
 
-      <p className='text-center text-xs text-gray-400 mt-2'>
+      <p className='text-center text-xs text-gray-400 mt-2 hidden md:block'>
         Press Enter to send · Shift+Enter for new line
       </p>
     </div>
