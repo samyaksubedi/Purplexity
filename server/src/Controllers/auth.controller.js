@@ -215,6 +215,8 @@ const signIn = async (req, res) => {
       error: error.message,
       stack: error.stack,
     });
+    console.log(error.message);
+    console.log(error.stack);
     return res
       .status(500)
       .json(new ApiError(500, 'Internal Server Error at /signIn'));
