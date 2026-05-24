@@ -6,12 +6,13 @@ import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import compression from 'compression';
 import cors from 'cors';
+import { envVariables } from './Configs/env.config.js';
 
 const app = express();
 
 app.use(
   cors({
-    origin: 'http://localhost:5173', // Vite default port
+    origin: envVariables.CLIENT_URL, // Vite default port
     credentials: true, // allows cookies (refreshToken)
     methods: ['GET', 'POST', 'DELETE', 'PUT', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'],

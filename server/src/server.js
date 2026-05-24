@@ -14,9 +14,9 @@ async function startServer() {
   await connectQdrant();
   await connectRedis();
   verifyMailTransporter();
-  app.listen(PORT, () => {
+  app.listen(PORT,'0.0.0.0', () => {
     logger.info(`Server running on port ${PORT}`);
-    logger.info(`API endpoints available at http://localhost:${PORT}/api`);
+    logger.info(`API endpoints available at ${envVariables.SERVER_URL}/api`);
   });
 }
 

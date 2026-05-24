@@ -11,6 +11,7 @@ const envVariables = {
   GMAIL_APP_PASSWORD: process.env.GMAIL_APP_PASSWORD,
   GMAIL_USER: process.env.GMAIL_USER,
   CLIENT_URL: process.env.CLIENT_URL,
+  SERVER_URL: process.env.SERVER_URL,
   ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET,
   REDIS_URL: process.env.REDIS_URL,
   QDRANT_URL: process.env.QDRANT_URL,

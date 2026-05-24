@@ -1,32 +1,33 @@
 import axios from 'axios';
 import { useAuthStore } from '../store/authStore';
 
+// ─── Axios Instance ───────────────────────────────────────────────────────────
 const api = axios.create({
-  baseURL: 'http://localhost:3000/api',
-  withCredentials: true, // sends httpOnly refreshToken cookie automatically
+  baseURL: import.meta.env.VITE_API_URL,
+  withCredentials: true,
 });
 
 // ─── Request Interceptor ──────────────────────────────────────────────────────
-// Attach accessToken to every request automatically
+// Attach accessToken automatically
 api.interceptors.request.use((config) => {
   const token = useAuthStore.getState().accessToken;
+
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
   return config;
 });
 
 // ─── Response Interceptor ─────────────────────────────────────────────────────
-// If accessToken expired (401) → silently refresh and retry original request
+// Handle expired access token → refresh → retry request
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    // Don't refresh on auth routes — signin/signup failures are not expired tokens
-    const isAuthRoute = originalRequest.url.includes('/auth/');
+    const isAuthRoute = originalRequest?.url?.includes('/auth/');
 
-    // Prevent infinite retry loop
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
@@ -35,25 +36,23 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        // Hit refresh endpoint → refreshToken cookie sent automatically
-        const { data } = await axios.post(
-          'http://localhost:3000/api/auth/refresh',
-          {},
-          { withCredentials: true },
-        );
+        // Use SAME axios instance (no hardcoded URL)
+        const { data } = await api.post('/auth/refresh', {});
 
-        const newAccessToken = data.data.accessToken;
+        const newAccessToken = data?.data?.accessToken;
 
-        // Save new token to Zustand store
+        // Save to Zustand store
         useAuthStore.getState().setAccessToken(newAccessToken);
 
         // Retry original request with new token
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+
         return api(originalRequest);
       } catch (refreshError) {
-        // Refresh failed → session expired → logout user
+        // Refresh failed → logout user
         useAuthStore.getState().logout();
         window.location.href = '/signin';
+
         return Promise.reject(refreshError);
       }
     }
