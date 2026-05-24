@@ -3,10 +3,10 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
+  provider = "postgresql"
   //! UnComment below 2 lines before migrating to db and generating types to ts ..  
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  // url       = env("DATABASE_URL")
+  // directUrl = env("DIRECT_URL")
 }
 
 // Defining the Schemas 
