@@ -6,7 +6,10 @@ import { ApiResponse } from '../UTILS/API/response.api.js';
 import { JsonOutputParser } from '@langchain/core/output_parsers';
 import { getUsersConversationContext } from '../Services/llm_context.service.js';
 import { prisma } from '../Configs/postgres.config.js';
-import { MessageRole } from '@prisma/client';
+// import { MessageRole } from '@prisma/client';
+import pkg from '@prisma/client';
+
+const { MessageRole } = pkg;
 import {
   classifyQuery,
   generateSubQueries,
