@@ -7,7 +7,10 @@ const SignIn = () => {
   const navigate = useNavigate();
   const setAuth = useAuthStore((state) => state.setAuth);
 
-  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [formData, setFormData] = useState({
+    email: 'test@purplexity.com',
+    password: 'testuser@123',
+  });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -37,6 +40,14 @@ const SignIn = () => {
         <div className='text-center mb-8'>
           <h1 className='text-3xl font-bold text-[#6c3fc5]'>Purplexity</h1>
           <p className='text-gray-500 text-sm mt-1'>Sign in to continue</p>
+        </div>
+
+        {/* Demo account banner */}
+        <div className='mb-4 px-4 py-3 bg-purple-50 border border-purple-100 rounded-lg text-center'>
+          <p className='text-xs font-medium text-[#6c3fc5]'>Demo Account</p>
+          <p className='text-xs text-gray-500 mt-0.5'>
+            Credentials are pre-filled — just click Sign In!
+          </p>
         </div>
 
         {/* Error */}
