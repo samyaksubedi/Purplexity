@@ -23,7 +23,7 @@ app.use(cookieParser());
 app.use(helmet());
 app.use(compression());
 
-app.get('/api', async (req, res) => {
+app.get('/api/health-check', async (req, res) => {
   res.send({ message: 'Server is serving' });
 });
 app.use('/api', conversationRouter);
