@@ -2,8 +2,8 @@ import { redis } from '../Configs/redis.config.js';
 import { ApiError } from '../UTILS/API/error.api.js';
 import { logger } from '../Configs/logger.config.js';
 
-const GLOBAL_LIMIT = 100; // max requests per day across all users
-const USER_LIMIT = 20; // max requests per day per user
+const GLOBAL_LIMIT = 300; // max requests per day across all users
+const USER_LIMIT = 40; // max requests per day per user
 const TTL = 24 * 60 * 60; // 24 hours in seconds
 
 const creditLimiter = async (req, res, next) => {
