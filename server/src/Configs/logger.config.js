@@ -8,32 +8,33 @@ const logger = winston.createLogger({
   // in development → 'debug' (logs everything)
   level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
 
-  // format for log files → structured JSON
   format: combine(timestamp(), json()),
 
-  // where logs go
   transports: [
-    // errors only → saved permanently to file
-    new winston.transports.File({
-      filename: 'logs/error.log',
-      level: 'error',
-    }),
-
-    // everything → saved permanently to file
-    new winston.transports.File({
-      filename: 'logs/combined.log',
+    // ✅ Always log to console
+    // Production → JSON format (Railway captures this)
+    // Development → colorized readable format
+    new winston.transports.Console({
+      format:
+        process.env.NODE_ENV === 'production'
+          ? combine(timestamp(), json())
+          : combine(colorize(), simple()),
     }),
   ],
 });
 
-// in development → also log to console with colors
+// File transports only in development
+// Railway filesystem is ephemeral — files disappear on redeploy
 if (process.env.NODE_ENV !== 'production') {
   logger.add(
-    new winston.transports.Console({
-      format: combine(
-        colorize(), // adds colors per level
-        simple(), // readable format instead of JSON
-      ),
+    new winston.transports.File({
+      filename: 'logs/error.log',
+      level: 'error',
+    }),
+  );
+  logger.add(
+    new winston.transports.File({
+      filename: 'logs/combined.log',
     }),
   );
 }
