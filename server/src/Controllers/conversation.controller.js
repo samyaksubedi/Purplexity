@@ -121,6 +121,7 @@ const ask = async (req, res) => {
     // Fire all 3 Tavily searches simultaneously using Promise.all()
     // Reduces search time from 3x sequential to 1x parallel
     const parallelWebSearchResults = await parallelSearchWeb(subQueries);
+    logger.debug('Parallel web search results', { parallelWebSearchResults });
 
     // ─── 8. EXTRACT + DEDUPLICATE RESULTS ────────────────────────────────────
     // Use Sets to automatically remove duplicate URLs and contents
@@ -128,8 +129,11 @@ const ask = async (req, res) => {
     // Then merge all web contents into one clean string for LLM context
     const sources = new Set();
     const webContents = new Set();
-    parallelWebSearchResults.forEach((webSearchResults) => {
-      webSearchResults['results'].forEach((result) => {
+    parallelWebSearchResults.forEach((webSearchResult) => {
+      // ✅ skip if Tavily returned an error for this sub-query
+      if (!webSearchResult?.results) return;
+
+      webSearchResult.results.forEach((result) => {
         sources.add(result['url']);
         webContents.add(result['content']);
       });
