@@ -57,6 +57,7 @@ A **conversational AI search engine** that :
 - **Logging**: Winston
 - **Email**: Nodemailer
 
+
 ### Frontend
 - **Framework**: React 19
 - **Routing**: React Router v7
@@ -65,6 +66,10 @@ A **conversational AI search engine** that :
 - **HTTP Client**: Axios
 - **State Management**: Zustand
 - **UI**: Custom components with Tailwind
+
+
+### AI Uses
+- **chatGPT and Claude** -> I used them just for understanding logics which were unclear to me and for designing some of the frontend components   
 
 ### Infrastructure
 - **Containerization**: Docker Compose
