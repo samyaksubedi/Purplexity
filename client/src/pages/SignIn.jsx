@@ -8,8 +8,8 @@ const SignIn = () => {
   const setAuth = useAuthStore((state) => state.setAuth);
 
   const [formData, setFormData] = useState({
-    email: 'test@purplexity.com',
-    password: 'testuser@123',
+    email: 'test@samyaklabs.com',
+    password: 'test123',
   });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
