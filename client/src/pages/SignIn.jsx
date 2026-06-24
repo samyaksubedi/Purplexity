@@ -9,7 +9,7 @@ const SignIn = () => {
 
   const [formData, setFormData] = useState({
     email: 'test@samyaklabs.com',
-    password: 'test123',
+    password: 'test@123',
   });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
